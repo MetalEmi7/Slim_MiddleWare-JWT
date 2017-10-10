@@ -16,7 +16,7 @@ class AuthJWT
          https://tools.ietf.org/html/rfc7519#section-4.1
          */
         $payload = array(
-            'iat' => $now,
+            'iat' => $now,      
             'aud' => self::Aud(),
             'data' => $data,
             'app' => "Generic User APIREST"
@@ -71,13 +71,16 @@ class AuthJWT
     {
         $aud = '';
 
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        if (!empty($_SERVER['HTTP_CLIENT_IP']))
+        {
             $aud = $_SERVER['HTTP_CLIENT_IP'];
         }
-        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+        {
             $aud = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
-        else {
+        else
+        {
             $aud = $_SERVER['REMOTE_ADDR'];
         }
 

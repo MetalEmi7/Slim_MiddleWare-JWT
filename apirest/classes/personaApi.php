@@ -6,21 +6,32 @@ use Slim\Http\UploadedFile;
 
 class personaApi extends Persona implements IGenericDAO
 {
+
+
+
+
+
+
+
+
+
+
+
     public function getById($request, $response, $args)
     {
         $personaid = $args['personaid'];
         $persona = Persona::getPersonaById($personaid);
-        if (!$persona)
-            {
+
+        if (!$persona){
             $rv = new stdclass();
             $rv->message = "Recurso no encontrado";
-            $newResponse = $response->withJson($rv, 404);
+
+            $ret_response = $response->withJson($rv, 404);
         }
-        else
-            {
-            $newResponse = $response->withJson($persona, 200);
+        else{
+            $ret_response = $response->withJson($persona, 200);
         }
-        return $newResponse;
+        return $ret_response;
     }
 
 
@@ -49,26 +60,7 @@ class personaApi extends Persona implements IGenericDAO
 
 
 
-/*
 
-	public static function insert($table,$params){
-		
-        try{
-			$db = personaApi::getPDO();
-
-			$sql = "insert into ".$table . "(nombre, mail, password, sexo) values (:1, :2, :3, :4)";
-			$statement = $db->sendQuery($sql);
-			$statement->bindValue(":1", $params['nombre'], PDO::PARAM_STR);
-			$statement->bindValue(":2", $params['mail'], PDO::PARAM_STR);
-			$statement->bindValue(":3", $params['password'], PDO::PARAM_STR);
-			$statement->bindValue(":4", $params['sexo'], PDO::PARAM_STR);
-			$statement->execute();
-
-		}catch(Exception $ex){
-			$message = $ex->getMessage();
-			die("Error: " . $ex->getMessage());
-		}
-    }*/
 
 
     
@@ -85,20 +77,28 @@ class personaApi extends Persona implements IGenericDAO
         /* http://php.net/manual/es/function.crypt.php */
 
         $newPersona = new Persona();
-        $newPersona->nombre = phpinfo();
+        $newPersona->nombre = ["nombre"];
         $newPersona->mail = $newPersonaData["mail"];
         $newPersona->password = $passCrypt;
+        //[OPCIONAL] - $newPersona->password = crypt($newPersonaData["password"], "1af324D");
         $newPersona->foto = $newPersonaData["foto"];
         $newPersona->sexo = $newPersonaData["sexo"];
 
         $personaid = $newPersona->insertPersona();
 
         $rv = new stdclass();
-        $rv->message = phpinfo();
+        $rv->message = "Persona ingresada";
         
         return $response->withJson($rv, 200);
 
     }
+
+
+
+
+
+
+
 
     public function update($request, $response, $args)
     {
@@ -133,7 +133,7 @@ class personaApi extends Persona implements IGenericDAO
 
 
 
-
+    
     public function delete($request, $response, $args)
     {
         $personaToDelete = $request->getParsedBody();
@@ -165,27 +165,36 @@ class personaApi extends Persona implements IGenericDAO
 
 
 
-
+    //SignIn
     public function validatePersona($request, $response, $args)
     {
         try {
             $rv = new stdclass();
+
             $personaData = $request->getParsedBody();
+
             $password = crypt($personaData['password'], "1af324D");
             $email = $personaData['mail'];
-            $persona = Persona::getPersonaDataByEmailAndPassword($email, $password);
-            if ($persona != false) {
 
+            $persona = Persona::getPersonaDataByEmailAndPassword($email, $password);
+
+            
+            if ($persona != false)
+            {
                 $jwt = AuthJWT::getToken($persona);
                 $rv->jwt = $jwt;
                 $rv->message = 'Persona encontrado';
                 $response = $response->withJson($rv, 200);
             }
-            else {
+            else
+            {
                 $rv->message = "El persona no ha sido encontrado";
-                $response = $response->withJson($rv, 404);
+                $response = $response->withJson($rv, 200);
             }
+
+
             return $response;
+
         } catch (Exception $ex) {
             $rv->message = "Error desconocido. Comuniquese con el administrador de su sistema.";
             $response = $response->withJson($rv, 404);
@@ -195,6 +204,16 @@ class personaApi extends Persona implements IGenericDAO
 
     }
 
+
+
+
+
+
+
+
+
+
+    //SignUp
     function registerPersona($request, $response, $args)
     {
         $rv = new stdclass();
@@ -221,6 +240,16 @@ class personaApi extends Persona implements IGenericDAO
     }
 
 
+
+
+
+
+
+
+
+
+
+    //Para foto
     function moveUploadedFile($directory, UploadedFile $uploadedFile)
     {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);

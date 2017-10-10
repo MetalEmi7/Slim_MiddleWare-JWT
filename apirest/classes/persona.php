@@ -8,6 +8,12 @@ class Persona
 	public $foto;
 	public $sexo;
 
+
+
+
+
+
+
 	public function deletePersona()
 	{
 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
@@ -22,6 +28,12 @@ class Persona
 		
 		return $consulta->rowCount();
 	}
+
+
+
+
+
+
 
 	public function updatePersona()
 	{
@@ -43,6 +55,14 @@ class Persona
 
 		return $consulta->execute();
 	}
+
+
+
+
+
+
+
+
 
 	public function insertPersona()
 	{
@@ -83,8 +103,7 @@ class Persona
 		$consulta = $objetoAccesoDato->RetornarConsulta("SELECT * from personas");
 		$consulta->execute();
 
-		return	json_encode($consulta->fetchAll(PDO::FETCH_CLASS, "persona"));
-		//return $consulta->fetchAll(PDO::FETCH_CLASS, "persona");
+		return $consulta->fetchAll(PDO::FETCH_CLASS, "persona");
 	}
 
 
@@ -110,15 +129,42 @@ class Persona
 		return $persona;
 	}
 
+
+
+	
+
+
+
+
+
 	public static function getPersonaDataByEmailAndPassword($mail, $password)
 	{
 		$objetoAccesoDato = AccesoDatos::dameUnObjetoAcceso();
+
 		$consulta = $objetoAccesoDato->RetornarConsulta("select mail,password from personas where mail = :mail and password = :password");
+		
 		$consulta->bindValue(':password', $password, PDO::PARAM_STR);
 		$consulta->bindValue(':mail', $mail, PDO::PARAM_STR);
+
 		$consulta->execute();
+
 		return $consulta->fetchObject('Persona');
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public static function personaAlreadyExist($email)
 	{
