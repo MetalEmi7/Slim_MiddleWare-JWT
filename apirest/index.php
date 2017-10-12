@@ -32,6 +32,8 @@ $app->group('/personas', function () {
   $this->post('/delete', \personaApi::class . ':delete');
 
   $this->post('/update', \personaApi::class . ':update');
+
+  $this->post('/subirFoto', \personaApi::class . ':Subir');
      
 })->add(\MWCORS::class . ':enableCORS');
 

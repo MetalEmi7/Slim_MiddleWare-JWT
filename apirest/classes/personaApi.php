@@ -19,8 +19,8 @@ class personaApi extends Persona implements IGenericDAO
 
     public function getById($request, $response, $args)
     {
-        $personaid = $args['personaid'];
-        $persona = Persona::getPersonaById($personaid);
+        $id = $args['id'];
+        $persona = Persona::getPersonaById($id);
 
         if (!$persona){
             $rv = new stdclass();
@@ -77,7 +77,7 @@ class personaApi extends Persona implements IGenericDAO
         /* http://php.net/manual/es/function.crypt.php */
 
         $newPersona = new Persona();
-        $newPersona->nombre = ["nombre"];
+        $newPersona->nombre = $newPersonaData["nombre"];
         $newPersona->mail = $newPersonaData["mail"];
         $newPersona->password = $passCrypt;
         //[OPCIONAL] - $newPersona->password = crypt($newPersonaData["password"], "1af324D");
@@ -188,6 +188,7 @@ class personaApi extends Persona implements IGenericDAO
             }
             else
             {
+                
                 $rv->message = "El persona no ha sido encontrado";
                 $response = $response->withJson($rv, 200);
             }
@@ -241,23 +242,74 @@ class personaApi extends Persona implements IGenericDAO
 
 
 
+  //Para foto
+  public static function Subir()
+  {        
+      $retorno["Exito"] = TRUE;
+
+      //INDICO CUAL SERA EL DESTINO DEL ARCHIVO SUBIDO
+      //$fotoTmp = $_FILES["foto"]["name"]. ".jpg";
+      $fotoTmp = $_FILES["foto"]["name"];
+      $destino = "tmp/" . $fotoTmp;
+
+      $tipoArchivo = pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION);
+
+      //VERIFICO EL TAMA�O MAXIMO QUE PERMITO SUBIR
+      if ($_FILES["foto"]["size"] > 500000)
+      {
+          $retorno["Exito"] = FALSE;
+          $retorno["Mensaje"] = "El foto es demasiado grande.\nVerifique!!!";
+          return $retorno;
+      }
+
+      //OBTIENE EL TAMA�O DE UNA IMAGEN, SI EL ARCHIVO NO ES UNA
+      //IMAGEN, RETORNA FALSE
+      $esImagen = getimagesize($_FILES["foto"]["tmp_name"]);
+
+
+      //Control de Tipo de foto y Extencion.
+      if ($esImagen === FALSE)
+      {//NO ES UNA IMAGEN
+          $retorno["Exito"] = FALSE;
+          $retorno["Mensaje"] = "Solo son permitidas IMAGENES.";
+          return $retorno;
+      }
+      else
+      {// ES UNA IMAGEN
+          //SOLO PERMITO CIERTAS EXTENSIONES
+          if ($tipoArchivo != "jpg" && $tipoArchivo != "jpeg" && $tipoArchivo != "gif" && $tipoArchivo != "png")
+          {
+              $retorno["Exito"] = FALSE;
+              $retorno["Mensaje"] = "Solo son permitidas imagenes con extensi&oacute;n JPG, JPEG, PNG o GIF.";
+              return $retorno;
+          }
+      }
 
 
 
+      if (!move_uploaded_file($_FILES["foto"]["tmp_name"], $destino))
+      {
+          $retorno["Exito"] = FALSE;
+          $retorno["Mensaje"] = "Ocurrio un error al subir el foto. No pudo guardarse.";
+          return $retorno;
+      }
+      else
+      {
+          $retorno["Mensaje"] = "Archivo subido exitosamente!!!";
+
+          //$retorno["Html"] = "<img src='".$destino."' width='300px' height='300px' />
+          //input type='button' value='Borrar Foto' onclick='BorrarFoto()' class='MiBotonUTN' style='width:500px' />
+          //<input type='hidden' id='hdnArchivoTemp' value='".$fotoTmp."' />";
+           
+          $retorno["PathTemporal"] = $destino;
+          $retorno["NombreArchivo"] = $_FILES["foto"]["name"];
+
+          return $retorno;
+      }
 
 
 
+  }
 
 
-    //Para foto
-    function moveUploadedFile($directory, UploadedFile $uploadedFile)
-    {
-        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-        $basename = bin2hex(random_bytes(8));
-        $filename = sprintf('%s.%0.8s', $basename, $extension);
-
-        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
-
-        return $filename;
-    }
 }
