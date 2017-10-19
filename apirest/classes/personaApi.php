@@ -31,6 +31,7 @@ class personaApi extends Persona implements IGenericDAO
         else{
             $ret_response = $response->withJson($persona, 200);
         }
+        
         return $ret_response;
     }
 
@@ -239,77 +240,5 @@ class personaApi extends Persona implements IGenericDAO
         }
         return $response;
     }
-
-
-
-  //Para foto
-  public static function Subir()
-  {        
-      $retorno["Exito"] = TRUE;
-
-      //INDICO CUAL SERA EL DESTINO DEL ARCHIVO SUBIDO
-      //$fotoTmp = $_FILES["foto"]["name"]. ".jpg";
-      $fotoTmp = $_FILES["foto"]["name"];
-      $destino = "tmp/" . $fotoTmp;
-
-      $tipoArchivo = pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION);
-
-      //VERIFICO EL TAMA�O MAXIMO QUE PERMITO SUBIR
-      if ($_FILES["foto"]["size"] > 500000)
-      {
-          $retorno["Exito"] = FALSE;
-          $retorno["Mensaje"] = "El foto es demasiado grande.\nVerifique!!!";
-          return $retorno;
-      }
-
-      //OBTIENE EL TAMA�O DE UNA IMAGEN, SI EL ARCHIVO NO ES UNA
-      //IMAGEN, RETORNA FALSE
-      $esImagen = getimagesize($_FILES["foto"]["tmp_name"]);
-
-
-      //Control de Tipo de foto y Extencion.
-      if ($esImagen === FALSE)
-      {//NO ES UNA IMAGEN
-          $retorno["Exito"] = FALSE;
-          $retorno["Mensaje"] = "Solo son permitidas IMAGENES.";
-          return $retorno;
-      }
-      else
-      {// ES UNA IMAGEN
-          //SOLO PERMITO CIERTAS EXTENSIONES
-          if ($tipoArchivo != "jpg" && $tipoArchivo != "jpeg" && $tipoArchivo != "gif" && $tipoArchivo != "png")
-          {
-              $retorno["Exito"] = FALSE;
-              $retorno["Mensaje"] = "Solo son permitidas imagenes con extensi&oacute;n JPG, JPEG, PNG o GIF.";
-              return $retorno;
-          }
-      }
-
-
-
-      if (!move_uploaded_file($_FILES["foto"]["tmp_name"], $destino))
-      {
-          $retorno["Exito"] = FALSE;
-          $retorno["Mensaje"] = "Ocurrio un error al subir el foto. No pudo guardarse.";
-          return $retorno;
-      }
-      else
-      {
-          $retorno["Mensaje"] = "Archivo subido exitosamente!!!";
-
-          //$retorno["Html"] = "<img src='".$destino."' width='300px' height='300px' />
-          //input type='button' value='Borrar Foto' onclick='BorrarFoto()' class='MiBotonUTN' style='width:500px' />
-          //<input type='hidden' id='hdnArchivoTemp' value='".$fotoTmp."' />";
-           
-          $retorno["PathTemporal"] = $destino;
-          $retorno["NombreArchivo"] = $_FILES["foto"]["name"];
-
-          return $retorno;
-      }
-
-
-
-  }
-
 
 }
